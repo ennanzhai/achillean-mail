@@ -1,0 +1,83 @@
+#include<cdos>
+#include"Handle_mail.h"
+
+int out_text_write(string my_email_address,
+	       string he_email_address,
+	       string DNS_address,
+	       string IP_address,
+	       string subject,
+	       string out_text_file_name,
+	       string pop_file_name){
+	
+	ifstream in(out_text_file_name,ios::in|ios::binary);
+	ofstream out(pop_file_name,ios::out);
+	
+	ifstream local_in(pop_file_name,ios::in|ios::binary);
+	ofstream local_out("out.txt",ios::out|ios::app);
+	
+	string s="ff\n\nk";
+	char buf[BUF_SIZE+1];
+	memset(buf,'\0',BUF_SIZE+1);
+	char* _buf;
+	int sendsize;
+	int _sendsize;
+	
+	int my_ops=my_email_address.find('@',0);
+	string my_header_mail=my_email_address.substr(0,my_ops);
+	string my_dns_mail=my_email_address.substr(my_ops+1,my_email_address.size()-my_ops);
+	
+	int he_ops=he_email_address.find('@',0);
+	string he_header_mail=he_email_address.substr(0,he_ops);
+	string he_dns_mail=he_email_address.substr(he_ops+1,he_email_address.size()-he_ops);
+	
+	out<<"S"<<endl;
+	out<<"Date: "<<"Fri, 21 Dec 2007 18:40:54 +0800"<<endl;                //note according to time
+	out<<"From: \""<<my_header_mail<<"\" <"<<my_email_address<<">"<<endl;
+	out<<"To: \""<<he_header_mail<<"\" <"<<he_email_address<<">"<<endl;
+	out<<"Subject: "<<subject<<endl;
+	out<<"Message-ID: <200712211840545237015"<<my_dns_mail<<">"<<endl;     //note according to time
+	out<<"X-mailer: Foxmail 6, 10, 201, 20 [cn]"<<endl;
+	out<<"Mime-Version: 1.0"<<endl;
+	out<<"Content-Type: multipart/mixed;"<<endl;
+	out<<"        boundary=\"=====001_Dragon017343432644_=====\""<<endl;   //note random
+	out<<endl;
+	out<<"This is a multi-part message in MIME format."<<endl;
+	out<<endl;
+	out<<"--"<<"\"=====001_Dragon017343432644_=====\""<<endl;
+	out<<"Content-Type: text/plain;"<<endl;
+	out<<"        charset=\"gb2312\""<<endl;
+	out<<"Content-Transfer-Encoding: base64"<<endl;
+	out<<endl;
+	
+	/*string str_temp=s.substr(s.find('@',0)+1,s.size()-s.find('@',0));
+	
+	out<<"X-Uidl: UID8"<<i<<"-1190129220&&"<<str_temp<<endl;
+	++i;
+	out<<"Return-Path: <"<<send_email_address<<">"<<endl;
+	out<<"X-Original-To: "<<receive_email_address<<endl;
+	out<<"Delivered-To: "<<receive_email_address<<endl;
+	out<<"Received: from "<<DNS_address<<"("<<DNS_address<<" "<<IP_address<<")"<<endl;
+	out<<"	      by "<<str_temp<<" (Postfix) with ESMTP id "<<RAND<<endl;   //Note
+	out<<"for <"<<<<">; Fri, 21 Dec 2007 00:34:32 +0800 (CST)"<<endl;
+	*/
+	while(1){
+		in.read(buf,static_cast<streamsize>(1008));
+		sendsize=in.gcount();
+		_buf=base64_encode(buf,sendsize);
+		_sendsize=strlen(_buf);
+		if(sendsize<0){
+			cout<<"error"<<endl;
+		}
+		else if(sendsize==0)
+			break;
+		else{
+			out.write(_buf,static_cast<streamsize>(_sendsize));
+			//cout<<_sendsize<<endl;
+		}
+	}
+	local_out<<endl;
+	while(local_in.read(buf,1024)){
+		local_out.write(buf,1024);
+	}
+	local_out.write(buf,strlen(buf));
+} 
